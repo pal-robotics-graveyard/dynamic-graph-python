@@ -93,8 +93,6 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}
 # Installation
 #
 
-EXEC_PROGRAM(${PYTHON_EXECUTABLE} ARGS "-c \"from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='')\""
-  OUTPUT_VARIABLE PYTHON_SITELIB)
 
 MESSAGE(STATUS "PYTHON_SITELIB=${PYTHON_SITELIB}")
 
