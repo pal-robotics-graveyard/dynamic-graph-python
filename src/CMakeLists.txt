@@ -94,6 +94,9 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}
 # Installation
 #
 
+EXEC_PROGRAM(${PYTHON_EXECUTABLE} ARGS
+    "-c \"import sys, os; print os.sep.join(['lib', 'python' + sys.version[:3], 'site-packages'])\""
+    OUTPUT_VARIABLE PYTHON_SITELIB)
 
 MESSAGE(STATUS "PYTHON_SITELIB=${PYTHON_SITELIB}")
 
