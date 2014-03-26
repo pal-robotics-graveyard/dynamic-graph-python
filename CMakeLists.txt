@@ -13,13 +13,17 @@
 # received a copy of the GNU Lesser General Public License along with
 # dynamic-graph-python. If not, see <http://www.gnu.org/licenses/>.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 
-INCLUDE(cmake/base.cmake)
-INCLUDE(cmake/boost.cmake)
-INCLUDE(cmake/pthread.cmake)
-INCLUDE(cmake/cpack.cmake)
-include(cmake/header.cmake)
+find_package(catkin REQUIRED COMPONENTS sot_cmake dynamic-graph)
+
+include_directories(${catkin_INCLUDE_DIRS})
+
+INCLUDE(${SOT_CMAKE_DIR}/base.cmake)
+INCLUDE(${SOT_CMAKE_DIR}/boost.cmake)
+INCLUDE(${SOT_CMAKE_DIR}/pthread.cmake)
+INCLUDE(${SOT_CMAKE_DIR}/cpack.cmake)
+include(${SOT_CMAKE_DIR}/header.cmake)
 
 SET(PROJECT_NAME dynamic-graph-python)
 SET(PROJECT_DESCRIPTION "Dynamic graph library Python bindings")
@@ -37,9 +41,10 @@ SET(${PROJECT_NAME}_HEADERS
 SET(PKG_CONFIG_ADDITIONAL_VARIABLES plugindir ${PKG_CONFIG_ADDITIONAL_VARIABLES})
 
 SETUP_PROJECT()
+catkin_package(INCLUDE_DIRS include)
 
 # Trigger dependency to dynamic-graph.
-ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 2.5.5-6")
+#ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 2.5.5-6")
 
 # Add dependency toward dynamic graph library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("dynamic-graph-python")
@@ -52,8 +57,8 @@ ADD_DEFINITIONS(-DBOOST_FILESYSTEM_VERSION=2)
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(include)
-ADD_SUBDIRECTORY(doc)
-ADD_SUBDIRECTORY(unitTesting)
+#ADD_SUBDIRECTORY(doc)
+#ADD_SUBDIRECTORY(unitTesting)
 
 SETUP_PROJECT_FINALIZE()
 
