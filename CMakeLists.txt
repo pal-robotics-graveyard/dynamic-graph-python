@@ -42,7 +42,10 @@ SET(${PROJECT_NAME}_HEADERS
 SET(PKG_CONFIG_ADDITIONAL_VARIABLES plugindir ${PKG_CONFIG_ADDITIONAL_VARIABLES})
 
 SETUP_PROJECT()
-catkin_package(INCLUDE_DIRS include)
+catkin_package(
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS dynamic-graph
+)
 
 # Trigger dependency to dynamic-graph.
 #ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 2.5.5-6")
