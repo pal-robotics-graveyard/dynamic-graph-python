@@ -18,6 +18,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 find_package(catkin REQUIRED COMPONENTS sot_cmake dynamic-graph)
 
 include_directories(${catkin_INCLUDE_DIRS})
+link_directories(${DYNAMIC_GRAPH_PLUGINDIR})
 
 INCLUDE(${SOT_CMAKE_DIR}/base.cmake)
 INCLUDE(${SOT_CMAKE_DIR}/boost.cmake)
