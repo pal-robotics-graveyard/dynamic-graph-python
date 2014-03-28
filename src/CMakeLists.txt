@@ -37,7 +37,7 @@ ADD_LIBRARY(${LIBRARY_NAME}
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   ${PYTHON_LIBRARY})
 
-TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES} dl)
 
 SET_TARGET_PROPERTIES(${LIBRARY_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION})
 #PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} dynamic-graph)
@@ -109,10 +109,10 @@ FOREACH (SOURCE ${PYTHON_SOURCES})
 ENDFOREACH (SOURCE)
 
 DYNAMIC_GRAPH_PYTHON_MODULE("tracer" "" tracer-wrap)
-target_link_libraries(tracer-wrap ${catkin_LIBRARIES})
+target_link_libraries(tracer-wrap ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 # TracerRealTime plugin
 DYNAMIC_GRAPH_PYTHON_MODULE("tracer_real_time" "" tracer_real_time-wrap)
-target_link_libraries(tracer_real_time-wrap ${catkin_LIBRARIES})
+target_link_libraries(tracer_real_time-wrap ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 
