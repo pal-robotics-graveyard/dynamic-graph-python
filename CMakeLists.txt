@@ -42,9 +42,16 @@ SET(${PROJECT_NAME}_HEADERS
 SET(PKG_CONFIG_ADDITIONAL_VARIABLES plugindir ${PKG_CONFIG_ADDITIONAL_VARIABLES})
 
 SETUP_PROJECT()
+
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS dynamic-graph
+)
+
+catkin_add_env_hooks(
+  20.dynamic-graph-python
+  SHELLS bash
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks
 )
 
 # Trigger dependency to dynamic-graph.

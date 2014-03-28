@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sppath=@CATKIN_DEVEL_PREFIX@/lib/python2.7/site-packages
+cleanpath="$(echo $PYTHONPATH | tr ':' '\n' | grep -v "$sppath" | tr '\n' ':')"
+
+export PYTHONPATH=$sppath:$cleanpath
