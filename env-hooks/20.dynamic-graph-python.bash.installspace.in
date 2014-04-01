@@ -1,6 +1,13 @@
 #!/bin/bash
 
-sppath=@CMAKE_INSTALL_PREFIX@/lib/python2.7/site-packages
-cleanpath="$(echo $PYTHONPATH | tr ':' '\n' | grep -v "$sppath" | tr '\n' ':')"
+function addtopath()
+{
+    local sppath=$2
+    local cleanpath=$1
+    echo -n $2:
+    echo $cleanpath | tr ':' '\n' | grep -v "$sppath" | tr '\n' ':' | \
+        sed 's,:$,,'
+}
 
-export PYTHONPATH=$sppath:$cleanpath
+export PYTHONPATH=$(addtopath $PYTHONPATH @CMAKE_INSTALL_PREFIX@/lib/python2.7/site-packages)
+export LD_LIBRARY_PATH=$(addtopath $LD_LIBRARY_PATH @CMAKE_INSTALL_PREFIX@/lib/dynamic-graph)
