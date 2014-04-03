@@ -51,11 +51,16 @@ def updateEntityClasses(dictionary):
     context (dictionary).
     """
     cxx_entityList = wrap.factory_get_entity_class_list()
+
+    for e in [x for x in cxx_entityList if x in Entity.entityClassNameList]:
+        dictionary[e] = Entity.entityClasses[e]
+
     for e in filter(lambda x: not x in Entity.entityClassNameList, cxx_entityList):
         # Store new class in dictionary with class name
         PyEntityFactory( e,dictionary )
         # Store class name in local list
         Entity.entityClassNameList.append(e)
+        Entity.entityClasses[e] = dictionary[e]
 
 # --- ENTITY -------------------------------------------------------------------
 # --- ENTITY -------------------------------------------------------------------
@@ -191,6 +196,7 @@ class Entity (object) :
     # List of all the entity classes from the c++ factory, that have been bound
     # bind the py factory.
     entityClassNameList = []
+    entityClasses = {}
 
     # This function dynamically create the function object that runs the command.
     @staticmethod
