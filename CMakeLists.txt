@@ -15,9 +15,9 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 
+project(dynamic-graph-python)
 find_package(catkin REQUIRED COMPONENTS sot_cmake dynamic-graph)
 
-include_directories(${catkin_INCLUDE_DIRS})
 link_directories(${DYNAMIC_GRAPH_PLUGINDIR})
 
 INCLUDE(${SOT_CMAKE_DIR}/base.cmake)
@@ -26,7 +26,6 @@ INCLUDE(${SOT_CMAKE_DIR}/pthread.cmake)
 INCLUDE(${SOT_CMAKE_DIR}/cpack.cmake)
 include(${SOT_CMAKE_DIR}/header.cmake)
 
-SET(PROJECT_NAME dynamic-graph-python)
 SET(PROJECT_DESCRIPTION "Dynamic graph library Python bindings")
 SET(PROJECT_URL "http://github.com/jrl-umi3218/dynamic-graph-python")
 
@@ -54,6 +53,8 @@ catkin_add_env_hooks(
   SHELLS bash
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks
 )
+
+include_directories(include ${catkin_INCLUDE_DIRS})
 
 # Trigger dependency to dynamic-graph.
 #ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 2.5.5-6")
