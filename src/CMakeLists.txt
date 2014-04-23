@@ -109,10 +109,10 @@ FOREACH (SOURCE ${PYTHON_SOURCES})
 ENDFOREACH (SOURCE)
 
 DYNAMIC_GRAPH_PYTHON_MODULE("tracer" "" tracer-wrap)
-target_link_libraries(tracer-wrap ${LIBRARY_NAME} ${catkin_LIBRARIES})
+target_link_libraries(tracer-wrap ${LIBRARY_NAME} tracer)
 
 # TracerRealTime plugin
 DYNAMIC_GRAPH_PYTHON_MODULE("tracer_real_time" "" tracer_real_time-wrap)
-target_link_libraries(tracer_real_time-wrap ${LIBRARY_NAME} ${catkin_LIBRARIES})
+target_link_libraries(tracer_real_time-wrap ${LIBRARY_NAME} tracer-real-time)
 
 
