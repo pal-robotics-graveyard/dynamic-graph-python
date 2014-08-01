@@ -63,6 +63,7 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 PKG_CONFIG_APPEND_LIBS("dynamic-graph-python")
 
 # Search for Boost.
+SET(BOOST_COMPONENTS python filesystem system thread program_options unit_test_framework)
 SEARCH_FOR_BOOST()
 
 # Make sure Boost.Filesystem v2 is used.

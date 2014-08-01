@@ -19,6 +19,13 @@
 #include "dynamic-graph/python/interpreter.hh"
 #include "link-to-python.hh"
 
+#include <boost/python/errors.hpp>
+#include <boost/python/object.hpp>
+#include <boost/python/handle.hpp>
+#include <boost/python/extract.hpp>
+
+using namespace boost::python;
+
 std::ofstream dg_debugfile( "/tmp/dynamic-graph-traces.txt", std::ios::trunc&std::ios::out );
 
 // Python initialization commands
@@ -125,6 +132,11 @@ Interpreter::Interpreter()
 #ifndef WIN32
   dlopen(libpython.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 #endif
+
+  
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   Py_Initialize();
   mainmod_ = PyImport_AddModule("__main__");
   Py_INCREF(mainmod_);
@@ -136,18 +148,28 @@ Interpreter::Interpreter()
   PyRun_SimpleString(pythonPrefix[2].c_str());
   PyRun_SimpleString(pythonPrefix[3].c_str());
   PyRun_SimpleString(pythonPrefix[4].c_str());
+  PyRun_SimpleString("import linecache");
+
   traceback_format_exception_ = PyDict_GetItemString
       (PyModule_GetDict(PyImport_AddModule("traceback")), "format_exception");
   assert(PyCallable_Check(traceback_format_exception_));
   Py_INCREF(traceback_format_exception_);
+
+  PyGILState_Release(gstate);
 }
 
 Interpreter::~Interpreter()
 {
+
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   //Py_DECREF(mainmod_);
   //Py_DECREF(globals_);
   //Py_DECREF(traceback_format_exception_);
   Py_Finalize();
+
+  PyGILState_Release(gstate);
 }
 
 std::string Interpreter::python( const std::string& command )
@@ -166,6 +188,10 @@ void Interpreter::python( const std::string& command, std::string& res,
   err = "";
 
   std::cout << command.c_str() << std::endl;
+
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   PyObject* result = PyRun_String(command.c_str(), Py_eval_input, globals_,
                                   globals_);
   // Check if the result is null.
@@ -219,6 +245,9 @@ void Interpreter::python( const std::string& command, std::string& res,
   Py_DecRef(stdout_obj);
   Py_DecRef(result2);
   Py_DecRef(result);
+
+  PyGILState_Release(gstate);
+
   return;
 }
 
@@ -229,14 +258,74 @@ PyObject* Interpreter::globals()
 
 void Interpreter::runPythonFile( std::string filename )
 {
+  std::string err = "";
+  runPythonFile(filename, err);
+}
+
+
+void Interpreter::runPythonFile( std::string filename, std::string& err)
+{
+  err = "";
+
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   PyObject* pymainContext = globals_;
-  PyRun_File(fopen( filename.c_str(),"r" ), filename.c_str(),
-             Py_file_input, pymainContext,pymainContext);
+  PyObject* run = PyRun_FileExFlags(fopen( filename.c_str(),"r" ), filename.c_str(),
+             Py_file_input, pymainContext,pymainContext, true, NULL);
   if (PyErr_Occurred())
   {
-    std::cout << "Error occures..." << std::endl;
-    PyErr_Print();
+    PyObject *ptype, *pvalue, *ptraceback;
+    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+
+    handle<> hTraceback(ptraceback);
+    object traceback(hTraceback);
+
+    //Extract error message
+    std::string strErrorMessage = extract<std::string>(pvalue);
+    std::ostringstream errstream;
+
+    //TODO does not work for now for a single command.
+    do
+      {
+	//Extract line number (top entry of call stack)
+	// if you want to extract another levels of call stack
+	// also process traceback.attr("tb_next") recurently
+	long lineno = extract<long> (traceback.attr("tb_lineno"));
+	std::string filename = extract<std::string>
+	  (traceback.attr("tb_frame").attr("f_code").attr("co_filename"));
+	std::string funcname = extract<std::string>
+	  (traceback.attr("tb_frame").attr("f_code").attr("co_name"));
+	errstream << " File \"" << filename  <<"\", line "
+		  << lineno << ", in "<< funcname << std::endl;
+
+	// get the corresponding line.
+	std::ostringstream cmd;
+	cmd << "linecache.getline('"<<filename<<"', "<<lineno <<")";
+	PyObject* line_obj = PyRun_String(cmd.str().c_str(),
+					  Py_eval_input, globals_, globals_);
+	std::string line = PyString_AsString(line_obj);
+	Py_DecRef(line_obj);
+
+	// remove the spaces at the beginning of the line.
+	size_t index = line.find_first_not_of (" \t");
+	errstream << "  " << line.substr(index, line.size()-index);
+	
+	// go to the next line.
+	traceback = traceback.attr("tb_next");
+      }
+    while (traceback);
+
+    // recreate the error message
+    errstream << strErrorMessage << std::endl;
+    err =errstream.str();
+    std::cerr << err;
   }
+
+  Py_DecRef(run);
+
+  PyGILState_Release(gstate);
+
 }
 
 void Interpreter::runMain( void )
